@@ -151,7 +151,7 @@ class LogStash::Runner < Clamp::StrictCommand
       #@logger.subscribe(STDOUT)
       # TODO(talevy): figure out equivalent for log4j2
       @logger.warn("Logstash has a new settings file which defines start up time settings. This file is typically located in $LS_HOME/config or /etc/logstash. If you installed Logstash through a package and are starting it manually please specify the location to this settings file by passing in \"--path.settings=/path/..\" in the command line options")
-      @logger.fatal("Failed to load settings file from \"path.settings\". Aborting...", "path.settings" => LogStash::SETTINGS.get("path.settings"), :exception => e.class, :message => e.message)
+      @logger.fatal("Failed to load settings file from \"path.settings\". Aborting...", "path.settings" => LogStash::SETTINGS.get("path.settings"), "exception" => e.class, "message" => e.message)
       exit(-1)
     end
 
@@ -165,7 +165,7 @@ class LogStash::Runner < Clamp::StrictCommand
 
     # Configure Logstash logging facility, this need to be done before everything else to
     # make sure the logger has the correct settings and the log level is correctly defined.
-    LogStash::Logging::Logger::configure_logging(setting("path.log"), setting("log.level"))
+    LogStash::Logging::Logger::configure_logging(setting("log.level"), setting("path.log"))
 
     if setting("config.debug") && @logger.debug?
       @logger.warn("--config.debug was specified, but log.level was not set to \'debug\'! No config info will be logged.")
@@ -186,7 +186,6 @@ class LogStash::Runner < Clamp::StrictCommand
     end
 
     LogStash::ShutdownWatcher.unsafe_shutdown = setting("pipeline.unsafe_shutdown")
-    # LogStash::ShutdownWatcher.logger = @logger
 
     configure_plugin_paths(setting("path.plugins"))
 
@@ -217,7 +216,7 @@ class LogStash::Runner < Clamp::StrictCommand
         #@logger.terminal "Configuration OK"
         return 0
       rescue => e
-        @logger.fatal I18n.t("logstash.runner.invalid-configuration", "error" => e.message)
+        @logger.fatal I18n.t("logstash.runner.invalid-configuration", :error => e.message)
         return 1
       end
     end
