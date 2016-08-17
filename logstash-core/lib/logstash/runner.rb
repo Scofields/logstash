@@ -148,12 +148,14 @@ class LogStash::Runner < Clamp::StrictCommand
     begin
       LogStash::SETTINGS.from_yaml(LogStash::SETTINGS.get("path.settings"))
     rescue => e
-      #@logger.subscribe(STDOUT)
-      # TODO(talevy): figure out equivalent for log4j2
       @logger.warn("Logstash has a new settings file which defines start up time settings. This file is typically located in $LS_HOME/config or /etc/logstash. If you installed Logstash through a package and are starting it manually please specify the location to this settings file by passing in \"--path.settings=/path/..\" in the command line options")
       @logger.fatal("Failed to load settings file from \"path.settings\". Aborting...", "path.settings" => LogStash::SETTINGS.get("path.settings"), "exception" => e.class, "message" => e.message)
       exit(-1)
     end
+
+    # initialize logging
+    logging_ctx = org.apache.logging.log4j.LogManager.getContext(false)
+    logging_ctx.setConfigLocation(java.io.File.new(setting("path.settings") + "/log4j.properties").toURI)
 
     super(*[args])
   end
