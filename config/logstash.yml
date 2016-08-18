@@ -103,6 +103,7 @@
 #   * info
 #   * debug
 #   * trace
+#   * fatal
 #
 # log.level: warn
 # path.log:
